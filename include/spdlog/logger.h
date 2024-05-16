@@ -263,6 +263,17 @@ public:
         return msg_level >= level_.load(std::memory_order_relaxed);
     }
 
+    void add_space() { 
+        const auto& str_padding = std::to_string(padding_ += 1);
+        set_pattern("%" + str_padding + "! %+");
+    }
+
+    void del_space() {
+        const auto &str_padding = std::to_string(padding_ -= 1);
+        if (str_padding == "0") set_pattern("%+");
+        else set_pattern("%" + str_padding + "! %+");
+    }
+
     // return true if backtrace logging is enabled.
     bool should_backtrace() const { return tracer_.enabled(); }
 
@@ -305,6 +316,7 @@ public:
     virtual std::shared_ptr<logger> clone(std::string logger_name);
 
 protected:
+    std::uint16_t padding_ = 0;
     std::string name_;
     std::vector<sink_ptr> sinks_;
     spdlog::level_t level_{level::info};
